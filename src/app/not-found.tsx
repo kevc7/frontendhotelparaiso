@@ -1,42 +1,59 @@
-import Link from 'next/link';
-
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <div className="mb-8">
-          <h1 className="text-6xl font-bold text-green-600 mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Página no encontrada
-          </h2>
-          <p className="text-gray-600 mb-8">
-            Lo sentimos, la página que buscas no existe o ha sido movida.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          <Link 
-            href="/"
-            className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Volver al inicio
-          </Link>
-          
-          <div className="text-sm text-gray-500">
-            <Link href="/habitaciones" className="hover:text-green-600">
-              Ver habitaciones
-            </Link>
-            {' • '}
-            <Link href="/reservar" className="hover:text-green-600">
-              Hacer reserva
-            </Link>
-            {' • '}
-            <Link href="/contacto" className="hover:text-green-600">
-              Contacto
-            </Link>
+    <html>
+      <head>
+        <title>404 - Página no encontrada | Hotel Paraíso</title>
+      </head>
+      <body>
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(to bottom right, #f0fdf4, #ffffff)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            maxWidth: '400px'
+          }}>
+            <h1 style={{
+              fontSize: '4rem',
+              fontWeight: 'bold',
+              color: '#059669',
+              marginBottom: '1rem'
+            }}>404</h1>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '1rem'
+            }}>
+              Página no encontrada
+            </h2>
+            <p style={{
+              color: '#6b7280',
+              marginBottom: '2rem'
+            }}>
+              Lo sentimos, la página que buscas no existe.
+            </p>
+            <a 
+              href="/"
+              style={{
+                display: 'inline-block',
+                backgroundColor: '#059669',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                textDecoration: 'none',
+                fontWeight: '500'
+              }}
+            >
+              Volver al inicio
+            </a>
           </div>
         </div>
-      </div>
-    </div>
+      </body>
+    </html>
   );
 } 
