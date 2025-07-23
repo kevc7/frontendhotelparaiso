@@ -26,7 +26,13 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   // Corregir la configuración experimental (serverComponentsExternalPackages ha sido movido)
-  serverExternalPackages: ['next-auth']
+  serverExternalPackages: ['next-auth'],
+  // Deshabilitar generación estática para evitar errores de useState
+  output: 'standalone',
+  trailingSlash: false,
+  experimental: {
+    esmExternals: false
+  }
 };
 
 module.exports = nextConfig; 
