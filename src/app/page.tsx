@@ -42,7 +42,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black">
       {/* Hero Section con Carousel de Fondo */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Carousel de Fondo */}
@@ -61,8 +61,8 @@ export default function Home() {
               }}
             />
           ))}
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+          {/* Overlay gradient mejorado */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70"></div>
         </div>
 
         {/* Contenido Hero */}
@@ -123,213 +123,152 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Welcome Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-white to-green-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
-              Bienvenido al 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600"> Paraíso</span>
+      {/* Sección de Servicios */}
+      <section className="py-20 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Bienvenido al Paraíso
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-green-300 max-w-3xl mx-auto">
               Un refugio donde la elegancia se encuentra con la naturaleza, 
               creando experiencias extraordinarias que perduran en el tiempo.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-10">
-            {[
-              {
-                icon: HomeIcon,
-                title: "Habitaciones Elegantes",
-                desc: "Espacios cuidadosamente diseñados con vistas espectaculares, comodidades premium y detalles que marcan la diferencia.",
-                color: "from-blue-400 to-blue-600",
-                image: "/habelegante.webp"
-              },
-              {
-                icon: BeakerIcon,
-                title: "Gastronomía de Autor",
-                desc: "Experiencias culinarias excepcionales con ingredientes frescos, técnicas innovadoras y sabores que despiertan los sentidos.",
-                color: "from-orange-400 to-red-500",
-                image: "/gastronomiadeautor.jpeg"
-              },
-              {
-                icon: SparklesIcon,
-                title: "Naturaleza Pura",
-                desc: "Inmerso en jardines exuberantes, senderos serpenteantes y la belleza intacta de un ecosistema único.",
-                color: "from-green-400 to-emerald-600",
-                image: "/naturalezapura.jpeg"
-              }
-            ].map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <div key={index} className="group">
-                  <div className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 h-80">
-                    {/* Imagen de fondo */}
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                      style={{
-                        backgroundImage: `url(${item.image})`,
-                      }}
-                    />
-                    
-                    {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    
-                    {/* Contenido */}
-                    <div className="relative z-10 p-8 h-full flex flex-col justify-end text-white">
-                      <div className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg p-3`}>
-                        <IconComponent className="w-8 h-8 text-white drop-shadow-sm" />
-                      </div>
-                      
-                      <h3 className="text-2xl font-bold mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-200 transition-all duration-500 animate-fade-in-up">
-                        {item.title.split('').map((char, i) => (
-                          <span 
-                            key={i} 
-                            className="inline-block hover:animate-bounce hover:text-yellow-300 transition-colors duration-300"
-                            style={{ animationDelay: `${i * 0.1}s` }}
-                          >
-                            {char === ' ' ? '\u00A0' : char}
-                          </span>
-                        ))}
-                      </h3>
-                      
-                      <p className="text-gray-200 leading-relaxed text-sm opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-                        {item.desc.split(' ').map((word, i) => (
-                          <span 
-                            key={i} 
-                            className="inline-block mr-1 group-hover:animate-fade-in-up"
-                            style={{ animationDelay: `${i * 0.05}s` }}
-                          >
-                            {word}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                    
-                    {/* Efecto de brillo en hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                  </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Habitaciones Elegantes */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+              <div className="relative h-64 overflow-hidden">
+                <img
+                  src="/habelegante.webp"
+                  alt="Habitación Elegante"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute top-4 left-4 bg-green-600 p-2 rounded-lg">
+                  <HomeIcon className="w-6 h-6 text-white" />
                 </div>
-              );
-            })}
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                  Habitaciones Elegantes
+                </h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Disfruta de espacios diseñados con elegancia y confort, 
+                  donde cada detalle está pensado para tu bienestar.
+                </p>
+              </div>
+            </div>
+
+            {/* Gastronomía de Autor */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+              <div className="relative h-64 overflow-hidden">
+                <img
+                  src="/gastronomiadeautor.jpeg"
+                  alt="Gastronomía de Autor"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute top-4 left-4 bg-green-600 p-2 rounded-lg">
+                  <SparklesIcon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                  Gastronomía de Autor
+                </h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Saborea platos únicos creados por nuestros chefs expertos, 
+                  fusionando sabores locales con técnicas internacionales.
+                </p>
+              </div>
+            </div>
+
+            {/* Naturaleza Pura */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+              <div className="relative h-64 overflow-hidden">
+                <img
+                  src="/naturalezapura.jpeg"
+                  alt="Naturaleza Pura"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute top-4 left-4 bg-green-600 p-2 rounded-lg">
+                  <HeartIcon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                  Naturaleza Pura
+                </h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Conecta con la belleza natural que nos rodea, 
+                  en un entorno donde la paz y la tranquilidad reinan.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-24 bg-gradient-to-b from-green-50 to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">
-              Nuestros Servicios
+      {/* Sección de Características */}
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              ¿Por qué elegirnos?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Todo lo que necesitas para una experiencia inolvidable está a tu alcance
+            <p className="text-xl text-green-300">
+              Descubre lo que nos hace únicos
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { 
-                icon: HomeIcon, 
-                title: "Piscina Infinity", 
-                desc: "Piscina climatizada con vista al jardín y efecto infinito", 
-                color: "bg-blue-50 hover:bg-blue-100" 
-              },
-              { 
-                icon: HeartIcon, 
-                title: "Spa Wellness", 
-                desc: "Tratamientos relajantes, masajes terapéuticos y aromaterapia", 
-                color: "bg-purple-50 hover:bg-purple-100" 
-              },
-              { 
-                icon: WrenchScrewdriverIcon, 
-                title: "Gimnasio Premium", 
-                desc: "Equipamiento de última generación las 24 horas", 
-                color: "bg-red-50 hover:bg-red-100" 
-              },
-              { 
-                icon: TruckIcon, 
-                title: "Valet Parking", 
-                desc: "Estacionamiento con servicio de valet incluido", 
-                color: "bg-gray-50 hover:bg-gray-100" 
-              },
-              { 
-                icon: BeakerIcon, 
-                title: "Restaurante Gourmet", 
-                desc: "Cocina de autor con productos orgánicos locales", 
-                color: "bg-orange-50 hover:bg-orange-100" 
-              },
-              { 
-                icon: SunIcon, 
-                title: "Terraza Panorámica", 
-                desc: "Vistas de 360° con servicio de cocktails", 
-                color: "bg-yellow-50 hover:bg-yellow-100" 
-              },
-              { 
-                icon: SparklesIcon, 
-                title: "Housekeeping Premium", 
-                desc: "Servicio de limpieza personalizado y discreta", 
-                color: "bg-green-50 hover:bg-green-100" 
-              },
-              { 
-                icon: WifiIcon, 
-                title: "WiFi Fiber", 
-                desc: "Internet de fibra óptica de alta velocidad", 
-                color: "bg-indigo-50 hover:bg-indigo-100" 
-              }
-            ].map((service, index) => {
-              const ServiceIcon = service.icon;
-              return (
-                <div key={index} className="group">
-                  <div className={`${service.color} rounded-2xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-white/50`}>
-                    <div className="text-gray-600 mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <ServiceIcon className="w-10 h-10" />
-                    </div>
-                    <h3 className="font-bold text-lg mb-3 text-gray-900">{service.title}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{service.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 text-white relative overflow-hidden">
-        {/* Elementos decorativos de fondo */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full"></div>
-          <div className="absolute bottom-20 right-20 w-24 h-24 bg-white rounded-full"></div>
-          <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white rounded-full"></div>
-        </div>
-        
-        <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-            ¿Listo para tu escape perfecto?
-          </h2>
-          <p className="text-xl md:text-2xl mb-12 text-green-100 max-w-3xl mx-auto leading-relaxed">
-            Reserva ahora y sumérgete en una experiencia que transformará tu manera de ver la hospitalidad
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link 
-              href="/reservar" 
-              className="group bg-white text-green-600 hover:bg-gray-100 font-bold text-lg py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
-            >
-              <span className="group-hover:scale-110 inline-block transition-transform duration-300">
-                Hacer Reserva 🌟
-              </span>
-            </Link>
-            <Link 
-              href="/contacto" 
-              className="group border-2 border-white/80 hover:border-white text-white hover:bg-white hover:text-green-600 font-bold text-lg py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
-            >
-              <span className="group-hover:scale-110 inline-block transition-transform duration-300">
-                Contactar 📞
-              </span>
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <WifiIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                WiFi Gratuito
+              </h3>
+              <p className="text-gray-300">
+                Conectividad de alta velocidad en todas las áreas
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <SunIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                Clima Perfecto
+              </h3>
+              <p className="text-gray-300">
+                Temperatura ideal durante todo el año
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <TruckIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                Estacionamiento
+              </h3>
+              <p className="text-gray-300">
+                Estacionamiento seguro y gratuito
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <WrenchScrewdriverIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                Servicio 24/7
+              </h3>
+              <p className="text-gray-300">
+                Atención personalizada en todo momento
+              </p>
+            </div>
           </div>
         </div>
       </section>

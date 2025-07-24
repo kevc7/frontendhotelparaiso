@@ -18,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
+    <html lang="es" className="dark">
+      <body className={`${inter.className} bg-gradient-to-br from-gray-900 via-green-900 to-black text-white`}>
         <SessionProvider>
           <Navbar />
-          <div className="pt-16 min-h-screen flex flex-col">
+          <div className="pt-20 min-h-screen flex flex-col">
             <main className="flex-1">
               {children}
             </main>

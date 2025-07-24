@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, UserGroupIcon, MagnifyingGlassIcon, StarIcon, WifiIcon, HomeIcon, CreditCardIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { useSession } from 'next-auth/react';
 import { Dialog } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 // Configuración de API
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -57,6 +57,8 @@ export default function ReservarPage() {
   const [habitacionParaReservar, setHabitacionParaReservar] = useState<any>(null);
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [formError, setFormError] = useState('');
+  const [animateContent, setAnimateContent] = useState(false);
+  
   // Nuevo estado para los campos del comprobante
   const [tipoComprobante, setTipoComprobante] = useState('transferencia');
   const [fechaPago, setFechaPago] = useState(() => new Date().toISOString().slice(0, 10));
@@ -99,8 +101,8 @@ export default function ReservarPage() {
     tomorrow.setDate(today.getDate() + 1);
 
     return {
-      checkIn: today.toISOString().split('T')[0],
-      checkOut: tomorrow.toISOString().split('T')[0]
+      today: today.toISOString().slice(0, 10),
+      tomorrow: tomorrow.toISOString().slice(0, 10)
     };
   }
 
@@ -108,76 +110,51 @@ export default function ReservarPage() {
   useEffect(() => {
     const fetchTiposHabitacion = async () => {
       try {
-        setInitialLoading(true);
-        console.log('🔍 Cargando tipos de habitación desde:', `${API_BASE_URL}/api/tipos-habitacion`);
         const response = await fetch(`${API_BASE_URL}/api/tipos-habitacion`);
-        console.log('📥 Respuesta tipos habitación:', response.status, response.ok);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Tipos de habitación cargados:', data);
-          setTiposHabitacion(data.data || []);
-        } else {
-          console.error('❌ Error en respuesta tipos habitación:', response.status);
-          setError('Error al cargar tipos de habitación');
+        if (!response.ok) {
+          throw new Error('Error al cargar tipos de habitación');
         }
-      } catch (error) {
-        console.error('💥 Error cargando tipos de habitación:', error);
-        setError('Error de conexión al cargar tipos de habitación');
-      } finally {
-        setInitialLoading(false);
+        const data = await response.json();
+        setTiposHabitacion(data.data || []);
+      } catch (err: any) {
+        console.error('Error:', err);
       }
     };
 
     fetchTiposHabitacion();
   }, []);
 
-  // Cargar habitaciones disponibles por defecto al montar el componente
+  // Cargar habitaciones iniciales
   useEffect(() => {
     const cargarHabitacionesIniciales = async () => {
-      console.log('🏨 Cargando habitaciones disponibles iniciales...');
-      const defaultDates = getDefaultDates();
-      
       try {
-        const url = `${API_BASE_URL}/api/disponibilidad?fecha_checkin=${defaultDates.checkIn}&fecha_checkout=${defaultDates.checkOut}`;
-        console.log('🔍 Consultando disponibilidad en:', url);
-        
-        const response = await fetch(url);
-        console.log('📥 Respuesta disponibilidad:', response.status, response.ok);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Habitaciones disponibles:', data);
-          setHabitacionesDisponibles(data.data || []);
-          
-          // Pre-llenar las fechas por defecto
-          setSearchData(prev => ({
-            ...prev,
-            checkIn: defaultDates.checkIn,
-            checkOut: defaultDates.checkOut
-          }));
-        } else {
-          console.error('❌ Error en respuesta disponibilidad:', response.status);
+        setInitialLoading(true);
+        const response = await fetch(`${API_BASE_URL}/api/habitaciones`);
+        if (!response.ok) {
+          throw new Error('Error al cargar habitaciones');
         }
-      } catch (error) {
-        console.error('💥 Error cargando habitaciones iniciales:', error);
+        const data = await response.json();
+        setHabitacionesDisponibles(data.data || []);
+      } catch (err: any) {
+        console.error('Error:', err);
+      } finally {
+        setInitialLoading(false);
+        // Animar contenido después de la carga
+        setTimeout(() => setAnimateContent(true), 500);
       }
     };
 
     cargarHabitacionesIniciales();
   }, []);
 
-  // Buscar habitaciones disponibles
   const handleSearch = async () => {
-    console.log('🔍 Iniciando búsqueda con datos:', searchData);
-    
     if (!searchData.checkIn || !searchData.checkOut) {
-      setError('Por favor selecciona las fechas de entrada y salida');
+      setError('Por favor, selecciona las fechas de llegada y salida');
       return;
     }
 
     if (new Date(searchData.checkIn) >= new Date(searchData.checkOut)) {
-      setError('La fecha de salida debe ser posterior a la fecha de entrada');
+      setError('La fecha de salida debe ser posterior a la fecha de llegada');
       return;
     }
 
@@ -185,623 +162,536 @@ export default function ReservarPage() {
     setError('');
 
     try {
-      let url = `${API_BASE_URL}/api/disponibilidad?fecha_checkin=${searchData.checkIn}&fecha_checkout=${searchData.checkOut}`;
+      const params = new URLSearchParams({
+        checkIn: searchData.checkIn,
+        checkOut: searchData.checkOut,
+        guests: searchData.guests.toString(),
+        ...(searchData.roomType && { roomType: searchData.roomType })
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/disponibilidad?${params}`);
       
-      if (searchData.roomType) {
-        url += `&tipo_habitacion_id=${searchData.roomType}`;
+      if (!response.ok) {
+        throw new Error('Error al buscar disponibilidad');
       }
 
-      console.log('🔍 Buscando en URL:', url);
-      const response = await fetch(url);
-      console.log('📥 Respuesta búsqueda:', response.status, response.ok);
-      
       const data = await response.json();
-      console.log('📊 Datos recibidos:', data);
-      
-      if (response.ok) {
-        setHabitacionesDisponibles(data.data || []);
-        if ((data.data || []).length === 0) {
-          setError('No hay habitaciones disponibles para los criterios seleccionados');
-        }
-      } else {
-        console.error('❌ Error en búsqueda:', data);
-        setError('Error al buscar habitaciones disponibles');
-      }
-    } catch (error) {
-      console.error('💥 Error:', error);
-      setError('Error de conexión');
+      setHabitacionesDisponibles(data.data || []);
+    } catch (err: any) {
+      setError(err.message || 'Error al buscar habitaciones');
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para abrir el modal de reserva
   const handleAbrirModal = (habitacion: any) => {
     setHabitacionParaReservar(habitacion);
-    
-    // Pre-llenar fechas del modal con datos de búsqueda o fechas por defecto
-    const defaultDates = getDefaultDates();
-    setModalCheckIn(searchData.checkIn || defaultDates.checkIn);
-    setModalCheckOut(searchData.checkOut || defaultDates.checkOut);
-    setModalGuests(searchData.guests || 1);
-    
+    setModalCheckIn(searchData.checkIn);
+    setModalCheckOut(searchData.checkOut);
+    setModalGuests(searchData.guests);
     setShowModal(true);
-    setFormError('');
   };
 
-  // Función para calcular noches y total
   const calcularReserva = () => {
-    if (!modalCheckIn || !modalCheckOut || !habitacionParaReservar) {
-      return { noches: 0, total: 0 };
-    }
-
-    const fechaEntrada = new Date(modalCheckIn);
-    const fechaSalida = new Date(modalCheckOut);
-    const noches = Math.ceil((fechaSalida.getTime() - fechaEntrada.getTime()) / (1000 * 60 * 60 * 24));
-    const total = noches * habitacionParaReservar.precio_base;
-
-    return { noches: Math.max(0, noches), total: Math.max(0, total) };
+    if (!habitacionParaReservar || !modalCheckIn || !modalCheckOut) return 0;
+    
+    const checkIn = new Date(modalCheckIn);
+    const checkOut = new Date(modalCheckOut);
+    const dias = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return dias * habitacionParaReservar.precio_noche;
   };
 
-  // Función para recargar habitaciones después de una reserva exitosa
   const recargarHabitaciones = async () => {
     try {
-      const checkIn = searchData.checkIn || getDefaultDates().checkIn;
-      const checkOut = searchData.checkOut || getDefaultDates().checkOut;
-      
-      let url = `${API_BASE_URL}/api/disponibilidad?fecha_checkin=${checkIn}&fecha_checkout=${checkOut}`;
-      if (searchData.roomType) url += `&tipo_habitacion_id=${searchData.roomType}`;
-      
-      const res = await fetch(url);
-      const data = await res.json();
-      if (res.ok) {
-        setHabitacionesDisponibles(data.data || []);
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/habitaciones`);
+      if (!response.ok) {
+        throw new Error('Error al recargar habitaciones');
       }
-    } catch (err) {
-      console.error('Error recargando habitaciones:', err);
+      const data = await response.json();
+      setHabitacionesDisponibles(data.data || []);
+    } catch (err: any) {
+      setError(err.message || 'Error al recargar habitaciones');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Manejar reserva con comprobante
   const handleReservarConComprobante = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
-
-    console.log('🚀 Iniciando proceso de reserva...');
-
-    if (!session?.user?.id) {
-      setFormError('Debes estar logueado para hacer una reserva');
+    
+    if (!comprobante) {
+      setFormError('Por favor, selecciona un comprobante de pago');
       return;
     }
 
     if (!modalCheckIn || !modalCheckOut) {
-      setFormError('Por favor selecciona las fechas de entrada y salida');
+      setFormError('Por favor, completa las fechas de la reserva');
       return;
     }
 
-    if (new Date(modalCheckIn) >= new Date(modalCheckOut)) {
-      setFormError('La fecha de salida debe ser posterior a la fecha de entrada');
-      return;
-    }
-
-    if (!comprobante) {
-      setFormError('Por favor adjunta el comprobante de pago');
-      return;
-    }
-
-    const { noches, total } = calcularReserva();
-    if (noches <= 0) {
-      setFormError('Las fechas seleccionadas no son válidas');
-      return;
-    }
-
-    console.log('✅ Validaciones iniciales pasadas');
-    console.log('📊 Datos de reserva:', {
-      fechas: { modalCheckIn, modalCheckOut },
-      huespedes: modalGuests,
-      habitacion: habitacionParaReservar.id,
-      calculo: { noches, total }
-    });
+    setLoading(true);
+    setFormError('');
 
     try {
-      // Paso 1: Obtener cliente del usuario logueado
-      console.log('👤 PASO 1: Obteniendo cliente para usuario:', session.user.id);
-      console.log('🍪 Document cookies:', document.cookie);
-      
-      const clienteResponse = await fetch(`${API_BASE_URL}/api/clientes?usuario_id=${session.user.id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include' // Esto debería enviar automáticamente las cookies
-      });
-      console.log('📥 Respuesta cliente:', clienteResponse.status, clienteResponse.ok);
-      
-      if (!clienteResponse.ok) {
-        const errorText = await clienteResponse.text();
-        console.error('❌ Error en respuesta cliente:', errorText);
-        throw new Error('Error al obtener información del cliente');
-      }
-      
-      const clienteData = await clienteResponse.json();
-      console.log('✅ Datos del cliente obtenidos:', clienteData);
-      
-      if (!clienteData.data || clienteData.data.length === 0) {
-        console.error('❌ No se encontró cliente para el usuario');
-        throw new Error('No se encontró un cliente asociado a tu usuario');
-      }
-      
-      const cliente = clienteData.data[0];
-      console.log('👤 Cliente seleccionado:', cliente.id);
+      const formData = new FormData();
+      formData.append('reservaId', habitacionParaReservar.id.toString());
+      formData.append('metodoPago', tipoComprobante);
+      formData.append('monto', calcularReserva().toString());
+      formData.append('fechaPago', fechaPago);
+      formData.append('file', comprobante);
 
-      // Paso 2: Crear la reserva
-      console.log('🏨 PASO 2: Creando reserva...');
-      const reservaData = {
-        cliente_id: cliente.id,
-        fecha_entrada: modalCheckIn,
-        fecha_salida: modalCheckOut,
-        numero_huespedes: modalGuests,
-        habitaciones: [habitacionParaReservar.id]
-      };
-      console.log('📋 Datos para crear reserva:', reservaData);
-
-      const reservaResponse = await fetch(`${API_BASE_URL}/api/reservas`, {
+      const response = await fetch(`${API_BASE_URL}/api/comprobantes`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(reservaData)
+        body: formData,
       });
 
-      console.log('📥 Respuesta creación reserva:', reservaResponse.status, reservaResponse.ok);
-
-      if (!reservaResponse.ok) {
-        const errorData = await reservaResponse.json();
-        console.error('❌ Error creando reserva:', errorData);
-        throw new Error(errorData.message || 'Error al crear la reserva');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al procesar la reserva');
       }
 
-      const reservaResult = await reservaResponse.json();
-      console.log('✅ Reserva creada exitosamente:', reservaResult);
-
-      // Paso 3: Subir comprobante de pago
-      console.log('📄 PASO 3: Subiendo comprobante...');
-      const comprobanteFormData = new FormData();
-      comprobanteFormData.append('file', comprobante);
-      comprobanteFormData.append('reserva_id', reservaResult.data.id.toString());
-      comprobanteFormData.append('tipo_comprobante', tipoComprobante);
-      comprobanteFormData.append('monto', total.toString());
-      comprobanteFormData.append('fecha_pago', fechaPago);
-
-      console.log('📋 Datos del comprobante:', {
-        reserva_id: reservaResult.data.id,
-        tipo_comprobante: tipoComprobante,
-        monto: total,
-        fecha_pago: fechaPago,
-        archivo: comprobante.name
-      });
-
-      const comprobanteResponse = await fetch(`${API_BASE_URL}/api/comprobantes`, {
-        method: 'POST',
-        credentials: 'include',
-        body: comprobanteFormData
-      });
-
-      console.log('📥 Respuesta subida comprobante:', comprobanteResponse.status, comprobanteResponse.ok);
-
-      if (!comprobanteResponse.ok) {
-        const errorText = await comprobanteResponse.text();
-        console.error('❌ Error subiendo comprobante:', errorText);
-        throw new Error('Error al subir el comprobante de pago');
-      }
-
-      const comprobanteResult = await comprobanteResponse.json();
-      console.log('✅ Comprobante subido exitosamente:', comprobanteResult);
-
-      setSuccess('Reserva creada y comprobante subido exitosamente. Espera la confirmación de tu reserva.');
+      setSuccess('¡Reserva realizada con éxito! Te hemos enviado un email con los detalles.');
       setShowModal(false);
-      setHabitacionSeleccionada('');
-      // Recargar habitaciones disponibles para reflejar la nueva reserva
-      await recargarHabitaciones();
+      setComprobante(null);
+      setTipoComprobante('transferencia');
+      setFechaPago(new Date().toISOString().slice(0, 10));
+      
+      // Recargar habitaciones después de la reserva
+      setTimeout(() => {
+        recargarHabitaciones();
+      }, 2000);
 
-    } catch (error: any) {
-      console.error('💥 Error en proceso de reserva:', error);
-      setFormError(error.message || 'Error al procesar la reserva');
+    } catch (err: any) {
+      setFormError(err.message || 'Error al procesar la reserva');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Configurar fechas por defecto
+  useEffect(() => {
+    const { today, tomorrow } = getDefaultDates();
+    setSearchData(prev => ({
+      ...prev,
+      checkIn: today,
+      checkOut: tomorrow
+    }));
+  }, []);
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-green-600 border-t-transparent mx-auto mb-6"></div>
+            <div className="absolute inset-0 rounded-full h-20 w-20 border-4 border-green-400 border-t-transparent animate-ping opacity-20"></div>
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-2 animate-pulse">Cargando Habitaciones</h3>
+          <p className="text-green-400">Buscando las mejores opciones para ti...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      {/* Mensaje de éxito moderno */}
-      {success && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center shadow-2xl">
-            <div className="text-6xl mb-4">✅</div>
-            <h3 className="text-2xl font-bold text-green-600 mb-2">¡Reserva Exitosa!</h3>
-            <p className="text-gray-600 mb-6">{success}</p>
-            <button
-              onClick={() => setSuccess('')}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Continuar
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black">
+      {/* Header con animación */}
+      <div className="relative py-16 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-12 transition-all duration-1000 ${
+            animateContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+              Reservar Habitación
+            </h1>
+            <p className="text-xl md:text-2xl text-green-300 max-w-3xl mx-auto">
+              Encuentra la habitación perfecta para tu estadía y reserva con facilidad
+            </p>
           </div>
-        </div>
-      )}
 
-      {/* Animación de carga inicial */}
-      {initialLoading && (
-        <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Cargando Hotel Paraíso Verde</h3>
-            <p className="text-gray-500">Preparando tu experiencia...</p>
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Reservar Habitación</h1>
-          <p className="text-lg text-gray-600">Encuentra la habitación perfecta para tu estadía</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            {error}
-          </div>
-        )}
-
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Panel de Búsqueda */}
-          <div className="lg:w-1/3">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-              <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+          {/* Filtros con animación */}
+          <div className={`max-w-4xl mx-auto mb-12 transition-all duration-1000 delay-300 ${
+            animateContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
+            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <MagnifyingGlassIcon className="w-6 h-6 text-green-400 mr-3" />
+                Filtros de Búsqueda
+              </h2>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <CalendarIcon className="w-4 h-4 inline mr-1" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Fecha de Llegada */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
                     Fecha de Llegada
                   </label>
-                  <input
-                    type="date"
-                    value={searchData.checkIn}
-                    onChange={(e) => setSearchData({...searchData, checkIn: e.target.value})}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
+                  <div className="relative">
+                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400" />
+                    <input
+                      type="date"
+                      value={searchData.checkIn}
+                      onChange={(e) => setSearchData({...searchData, checkIn: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <CalendarIcon className="w-4 h-4 inline mr-1" />
+                {/* Fecha de Salida */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
                     Fecha de Salida
                   </label>
-                  <input
-                    type="date"
-                    value={searchData.checkOut}
-                    onChange={(e) => setSearchData({...searchData, checkOut: e.target.value})}
-                    min={searchData.checkIn || new Date().toISOString().split('T')[0]}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
+                  <div className="relative">
+                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400" />
+                    <input
+                      type="date"
+                      value={searchData.checkOut}
+                      onChange={(e) => setSearchData({...searchData, checkOut: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <UserGroupIcon className="w-4 h-4 inline mr-1" />
-                    Número de Huéspedes
+                {/* Número de Huéspedes */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Huéspedes
                   </label>
-                  <select
-                    value={searchData.guests}
-                    onChange={(e) => setSearchData({...searchData, guests: parseInt(e.target.value)})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="1">1 huésped</option>
-                    <option value="2">2 huéspedes</option>
-                    <option value="3">3 huéspedes</option>
-                    <option value="4">4 huéspedes</option>
-                    <option value="5">5 huéspedes</option>
-                    <option value="6">6 huéspedes</option>
-                  </select>
+                  <div className="relative">
+                    <UserGroupIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400" />
+                    <select
+                      value={searchData.guests}
+                      onChange={(e) => setSearchData({...searchData, guests: parseInt(e.target.value)})}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                    >
+                      {[1, 2, 3, 4, 5, 6].map(num => (
+                        <option key={num} value={num} className="bg-gray-800 text-white">
+                          {num} {num === 1 ? 'huésped' : 'huéspedes'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                {/* Tipo de Habitación */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
                     Tipo de Habitación
                   </label>
-                  <select
-                    value={searchData.roomType}
-                    onChange={(e) => setSearchData({...searchData, roomType: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="">Cualquier tipo</option>
-                    {tiposHabitacion.map((tipo) => (
-                      <option key={tipo.id} value={tipo.id}>
-                        {tipo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <HomeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400" />
+                    <select
+                      value={searchData.roomType}
+                      onChange={(e) => setSearchData({...searchData, roomType: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                    >
+                      <option value="" className="bg-gray-800 text-white">Cualquier tipo</option>
+                      {tiposHabitacion.map(tipo => (
+                        <option key={tipo.id} value={tipo.nombre} className="bg-gray-800 text-white">
+                          {tipo.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+              </div>
 
+              {/* Botón de búsqueda */}
+              <div className="mt-8 text-center">
                 <button
                   onClick={handleSearch}
                   disabled={loading}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 border border-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Buscando...' : 'Buscar'}
+                  <span className="flex items-center justify-center">
+                    {loading ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <MagnifyingGlassIcon className="w-5 h-5 mr-2" />
+                    )}
+                    {loading ? 'Buscando...' : 'Buscar Habitaciones'}
+                  </span>
                 </button>
               </div>
             </div>
           </div>
-          
-          {/* Cuadrícula de habitaciones */}
-          <div className="flex-1">
-            {loading ? (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-4">⏳</div>
-                <h3 className="text-xl font-semibold mb-2">Buscando habitaciones...</h3>
-                <p>Un momento por favor</p>
+
+          {/* Mensaje de error */}
+          {error && (
+            <div className="max-w-4xl mx-auto mb-6">
+              <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 text-red-300">
+                {error}
               </div>
-            ) : habitacionesDisponibles.length > 0 ? (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  Habitaciones Disponibles ({habitacionesDisponibles.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {habitacionesDisponibles.map((hab) => (
-                    <div key={hab.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                      {/* Imagen de la habitación */}
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={getHabitacionImage(hab.tipo_nombre)}
-                          alt={`Habitación ${hab.tipo_nombre}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            // Fallback en caso de error al cargar la imagen
-                            e.currentTarget.src = 'https://res.cloudinary.com/dqwztjdcz/image/upload/v1753089234/descarga_18_fvcaxx.jpg';
-                          }}
-                        />
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-                          {hab.numero}
-                        </div>
-                      </div>
-                      
-                      {/* Contenido de la card */}
-                      <div className="p-5 flex flex-col justify-between h-40">
-                        <div>
-                          <h4 className="font-bold text-lg mb-2 text-gray-800">{hab.tipo_nombre}</h4>
-                          <div className="text-sm text-gray-600 mb-2">
-                            <span className="inline-block mr-3">👥 {hab.capacidad_maxima} personas</span>
-                          </div>
-                          <div className="text-sm text-gray-600 mb-3 line-clamp-2">
-                            {hab.servicios && typeof hab.servicios === 'string' 
-                              ? hab.servicios.split(',').slice(0, 3).join(', ')
-                              : 'Servicios básicos'
-                            }
-                          </div>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="text-lg font-bold text-green-600">
-                            ${hab.precio_base}/noche
-                          </div>
-                          <button
-                            className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
-                            onClick={() => handleAbrirModal(hab)}
-                          >
-                            Reservar
-                          </button>
-                        </div>
+            </div>
+          )}
+
+          {/* Grid de habitaciones */}
+          <div className={`transition-all duration-1000 delay-500 ${
+            animateContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Habitaciones Disponibles ({habitacionesDisponibles.length})
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {habitacionesDisponibles.map((habitacion, index) => (
+                <div
+                  key={habitacion.id}
+                  className={`group bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25 ${
+                    animateContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  {/* Imagen de la habitación */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={getHabitacionImage(habitacion.tipo_nombre)}
+                      alt={habitacion.tipo_nombre}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      Habitación {habitacion.numero}
+                    </div>
+                    <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                      {habitacion.estado === 'libre' ? 'Disponible' : 'Ocupada'}
+                    </div>
+                  </div>
+
+                  {/* Contenido de la habitación */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors duration-300">
+                      {habitacion.tipo_nombre}
+                    </h3>
+                    
+                    <div className="flex items-center text-gray-300 mb-3">
+                      <UserGroupIcon className="w-4 h-4 mr-2 text-green-400" />
+                      <span className="text-sm">{habitacion.capacidad_maxima} personas</span>
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="text-sm font-semibold text-gray-300 mb-2">Servicios incluidos:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {habitacion.servicios.split(',').slice(0, 3).map((servicio, idx) => (
+                          <span key={idx} className="bg-green-600/20 text-green-300 px-2 py-1 rounded-full text-xs">
+                            {servicio.trim()}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  ))}
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-green-400">
+                        ${habitacion.precio_noche}/noche
+                      </div>
+                      <button
+                        onClick={() => handleAbrirModal(habitacion)}
+                        disabled={habitacion.estado !== 'libre'}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Reservar
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="text-gray-500 text-center mt-16">
+              ))}
+            </div>
+
+            {habitacionesDisponibles.length === 0 && !loading && (
+              <div className="text-center py-12">
                 <div className="text-6xl mb-4">🏨</div>
-                <h3 className="text-xl font-semibold mb-2">No hay habitaciones disponibles</h3>
-                <p>Intenta con otras fechas o tipos de habitación</p>
+                <h3 className="text-2xl font-bold text-white mb-2">No hay habitaciones disponibles</h3>
+                <p className="text-gray-300">Intenta con otras fechas o criterios de búsqueda</p>
               </div>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Modal de reserva */}
+      <Dialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true" />
         
-        {/* Modal de reserva */}
-        <Dialog open={showModal} onClose={() => setShowModal(false)} className="fixed z-50 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true" />
-            <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-auto p-8 z-10">
-              <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={() => setShowModal(false)}>
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-              <Dialog.Title className="text-2xl font-bold mb-4 text-center">Confirmar Reserva</Dialog.Title>
-              
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-2xl bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 overflow-hidden">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <Dialog.Title className="text-2xl font-bold text-white">
+                  Confirmar Reserva
+                </Dialog.Title>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+
               {habitacionParaReservar && (
-                <div className="mb-6">
-                  {/* Imagen de la habitación en el modal */}
-                  <div className="mb-4">
-                    <img
-                      src={getHabitacionImage(habitacionParaReservar.tipo_nombre)}
-                      alt={`Habitación ${habitacionParaReservar.tipo_nombre}`}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                <div className="space-y-6">
+                  {/* Información de la habitación */}
+                  <div className="bg-gray-700/50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {habitacionParaReservar.tipo_nombre}
+                    </h3>
+                    <p className="text-gray-300 text-sm mb-2">
+                      Habitación {habitacionParaReservar.numero}
+                    </p>
+                    <p className="text-green-400 font-semibold">
+                      ${habitacionParaReservar.precio_noche}/noche
+                    </p>
                   </div>
-                  
+
+                  {/* Fechas de la reserva */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Fecha de Llegada
+                      </label>
+                      <input
+                        type="date"
+                        value={modalCheckIn}
+                        onChange={(e) => setModalCheckIn(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Fecha de Salida
+                      </label>
+                      <input
+                        type="date"
+                        value={modalCheckOut}
+                        onChange={(e) => setModalCheckOut(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Total de la reserva */}
+                  <div className="bg-green-600/20 border border-green-500/50 rounded-lg p-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-semibold">Total de la reserva:</span>
+                      <span className="text-2xl font-bold text-green-400">
+                        ${calcularReserva()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Formulario de comprobante */}
                   <form onSubmit={handleReservarConComprobante} className="space-y-4">
                     <div>
-                      <div className="font-semibold text-lg">{habitacionParaReservar.tipo_nombre}</div>
-                      <div className="text-gray-600">Habitación {habitacionParaReservar.numero}</div>
-                    </div>
-                    
-                    {/* Campos de fecha editables */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block font-semibold mb-1 text-sm">Fecha de Entrada *</label>
-                        <input
-                          type="date"
-                          value={modalCheckIn}
-                          onChange={(e) => setModalCheckIn(e.target.value)}
-                          min={new Date().toISOString().split('T')[0]}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold mb-1 text-sm">Fecha de Salida *</label>
-                        <input
-                          type="date"
-                          value={modalCheckOut}
-                          onChange={(e) => setModalCheckOut(e.target.value)}
-                          min={modalCheckIn || new Date().toISOString().split('T')[0]}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-1 text-sm">Número de Huéspedes *</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Método de Pago
+                      </label>
                       <select
-                        value={modalGuests}
-                        onChange={(e) => setModalGuests(parseInt(e.target.value))}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
+                        value={tipoComprobante}
+                        onChange={(e) => setTipoComprobante(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
                       >
-                        {[...Array(habitacionParaReservar.capacidad_maxima)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            {i + 1} huésped{i > 0 ? 'es' : ''}
-                          </option>
-                        ))}
+                        <option value="transferencia" className="bg-gray-800 text-white">
+                          Transferencia Bancaria
+                        </option>
+                        <option value="deposito" className="bg-gray-800 text-white">
+                          Depósito Bancario
+                        </option>
                       </select>
                     </div>
 
-                    {/* Cálculo dinámico */}
-                    {modalCheckIn && modalCheckOut && (
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex justify-between mb-2">
-                          <span>Noches:</span>
-                          <span className="font-semibold">{calcularReserva().noches}</span>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                          <span>Precio por noche:</span>
-                          <span className="font-semibold">${habitacionParaReservar.precio_base}</span>
-                        </div>
-                        <div className="flex justify-between text-lg font-bold border-t pt-2">
-                          <span>Total:</span>
-                          <span className="text-green-600">${calcularReserva().total}</span>
+                    {/* Información bancaria */}
+                    {getInformacionBancaria(tipoComprobante) && (
+                      <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                        <h4 className="text-white font-semibold mb-3 flex items-center">
+                          <BanknotesIcon className="w-5 h-5 text-green-400 mr-2" />
+                          {getInformacionBancaria(tipoComprobante)?.titulo}
+                        </h4>
+                        <div className="space-y-2 text-sm text-gray-300">
+                          <p><span className="font-semibold">Banco:</span> {getInformacionBancaria(tipoComprobante)?.banco}</p>
+                          <p><span className="font-semibold">Cuenta:</span> {getInformacionBancaria(tipoComprobante)?.cuenta}</p>
+                          <p><span className="font-semibold">Tipo:</span> {getInformacionBancaria(tipoComprobante)?.tipo}</p>
+                          <p><span className="font-semibold">Titular:</span> {getInformacionBancaria(tipoComprobante)?.titular}</p>
+                          <p><span className="font-semibold">CCI:</span> {getInformacionBancaria(tipoComprobante)?.cci}</p>
                         </div>
                       </div>
                     )}
 
-                    {/* Campos del comprobante */}
-                    <div className="border-t pt-4">
-                      <h4 className="font-semibold mb-3">Información del Pago</h4>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block font-semibold mb-1 text-sm">Método de Pago *</label>
-                          <select
-                            value={tipoComprobante}
-                            onChange={(e) => setTipoComprobante(e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                            required
-                          >
-                            <option value="transferencia">Transferencia Bancaria</option>
-                            <option value="deposito">Depósito Bancario</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block font-semibold mb-1 text-sm">Fecha de Pago *</label>
-                          <input
-                            type="date"
-                            value={fechaPago}
-                            onChange={(e) => setFechaPago(e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                            required
-                          />
-                        </div>
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Fecha de Pago
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaPago}
+                        onChange={(e) => setFechaPago(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                      />
+                    </div>
 
-                      {/* Información bancaria dinámica */}
-                      {getInformacionBancaria(tipoComprobante) && (
-                        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <h5 className="font-semibold text-blue-800 mb-2">
-                            {getInformacionBancaria(tipoComprobante)?.titulo}
-                          </h5>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Banco:</span>
-                              <span className="font-medium">{getInformacionBancaria(tipoComprobante)?.banco}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Cuenta:</span>
-                              <span className="font-medium">{getInformacionBancaria(tipoComprobante)?.cuenta}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Tipo:</span>
-                              <span className="font-medium">{getInformacionBancaria(tipoComprobante)?.tipo}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Titular:</span>
-                              <span className="font-medium">{getInformacionBancaria(tipoComprobante)?.titular}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">CCI:</span>
-                              <span className="font-medium font-mono">{getInformacionBancaria(tipoComprobante)?.cci}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-4">
-                        <label className="block font-semibold mb-1 text-sm">Comprobante de Pago *</label>
-                        <input
-                          type="file"
-                          onChange={(e) => setComprobante(e.target.files?.[0] || null)}
-                          accept="image/*,.pdf"
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Formatos permitidos: JPG, PNG, PDF (máx. 10MB)
-                        </p>
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Comprobante de Pago
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setComprobante(e.target.files?.[0] || null)}
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-500"
+                      />
                     </div>
 
                     {formError && (
-                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
+                      <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 text-red-300">
                         {formError}
                       </div>
                     )}
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-4 pt-4">
                       <button
                         type="button"
                         onClick={() => setShowModal(false)}
-                        className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                        className="flex-1 px-6 py-3 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-all duration-300"
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
-                        disabled={!modalCheckIn || !modalCheckOut || !comprobante}
-                        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loading}
+                        className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Confirmar Reserva
+                        {loading ? 'Procesando...' : 'Confirmar Reserva'}
                       </button>
                     </div>
                   </form>
                 </div>
               )}
             </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Modal de éxito */}
+      {success && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 max-w-md w-full text-center border border-gray-700">
+            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckIcon className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">¡Reserva Exitosa!</h3>
+            <p className="text-gray-300 mb-6">{success}</p>
+            <button
+              onClick={() => setSuccess('')}
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
+            >
+              Continuar
+            </button>
           </div>
-        </Dialog>
-      </div>
+        </div>
+      )}
     </div>
   );
 } 

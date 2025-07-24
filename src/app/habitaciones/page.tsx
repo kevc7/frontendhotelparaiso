@@ -89,22 +89,6 @@ export default function HabitacionesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black">
-      {/* Header con animación */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className={`text-4xl md:text-7xl font-bold text-white mb-4 text-center transition-all duration-1000 ${
-            animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            Nuestras Habitaciones
-          </h1>
-          <p className={`text-xl md:text-2xl text-green-300 text-center transition-all duration-1000 delay-300 ${
-            animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            Descubre el confort y la elegancia en cada una de nuestras habitaciones
-          </p>
-        </div>
-      </div>
-
       {/* Carrusel principal */}
       <div className="relative h-screen overflow-hidden">
         {habitacionesCarrusel.map((habitacion, index) => (
@@ -122,6 +106,22 @@ export default function HabitacionesPage() {
               {/* Overlay gradiente mejorado */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            </div>
+
+            {/* Header con título sobre el carrusel */}
+            <div className="absolute top-0 left-0 right-0 z-20 p-8">
+              <div className="max-w-7xl mx-auto">
+                <div className={`text-center transition-all duration-1000 ${
+                  animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}>
+                  <h1 className="text-4xl md:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                    Nuestras Habitaciones
+                  </h1>
+                  <p className="text-xl md:text-2xl text-green-300 drop-shadow-lg">
+                    Descubre el confort y la elegancia en cada una de nuestras habitaciones
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Contenido del slide con animaciones */}
