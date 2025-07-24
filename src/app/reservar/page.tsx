@@ -236,7 +236,7 @@ export default function ReservarPage() {
 
     try {
       if (!session) {
-        setFormError('Debes iniciar sesión para hacer una reserva');
+        setFormError('Debes iniciar sesión para hacer una reserva, por favor');
         return;
       }
       // Paso 1: Obtener cliente del usuario logueado
