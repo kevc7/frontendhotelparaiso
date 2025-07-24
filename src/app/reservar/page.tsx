@@ -235,6 +235,10 @@ export default function ReservarPage() {
     });
 
     try {
+      if (!session) {
+        setFormError('Debes iniciar sesión para hacer una reserva');
+        return;
+      }
       // Paso 1: Obtener cliente del usuario logueado
       console.log('👤 PASO 1: Obteniendo cliente para usuario:', session.user.id);
       console.log('🍪 Document cookies:', document.cookie);
