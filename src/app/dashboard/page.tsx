@@ -19,7 +19,7 @@ interface DashboardStats {
   reservasPendientes: number;
   reservasConfirmadas: number;
   habitacionesDisponibles: number;
-  totalClientes: number;
+  totalUsuarios: number;
 }
 
 export default function DashboardPage() {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     reservasPendientes: 0,
     reservasConfirmadas: 0,
     habitacionesDisponibles: 0,
-    totalClientes: 0
+    totalUsuarios: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -40,16 +40,16 @@ export default function DashboardPage() {
       setLoading(true);
       
       // Cargar contadores básicos en paralelo
-      const [reservasRes, habitacionesRes, clientesRes] = await Promise.all([
+      const [reservasRes, habitacionesRes, usuariosRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/reservas`, { credentials: 'include' }),
         fetch(`${API_BASE_URL}/api/habitaciones`, { credentials: 'include' }),
-        fetch(`${API_BASE_URL}/api/clientes`, { credentials: 'include' })
+        fetch(`${API_BASE_URL}/api/usuarios`, { credentials: 'include' })
       ]);
 
       let reservasPendientes = 0;
       let reservasConfirmadas = 0;
       let habitacionesDisponibles = 0;
-      let totalClientes = 0;
+      let totalUsuarios = 0;
 
       // Procesar reservas
       if (reservasRes.ok) {
@@ -66,17 +66,17 @@ export default function DashboardPage() {
         habitacionesDisponibles = habitaciones.filter((h: any) => h.estado === 'libre').length;
       }
 
-      // Procesar clientes
-      if (clientesRes.ok) {
-        const clientesData = await clientesRes.json();
-        totalClientes = clientesData.data?.length || 0;
+      // Procesar usuarios
+      if (usuariosRes.ok) {
+        const usuariosData = await usuariosRes.json();
+        totalUsuarios = usuariosData.data?.length || 0;
       }
 
       setStats({
         reservasPendientes,
         reservasConfirmadas,
         habitacionesDisponibles,
-        totalClientes
+        totalUsuarios
       });
 
     } catch (err) {
@@ -208,18 +208,18 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Total Clientes */}
+          {/* Total Usuarios */}
           <div className="group bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <UsersIcon className="w-8 h-8 text-white" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-300">Clientes</p>
+                <p className="text-sm font-medium text-gray-300">Usuarios</p>
                 <p className="text-4xl font-bold text-white">
-                  {stats.totalClientes}
+                  {stats.totalUsuarios}
                 </p>
-                <p className="text-xs text-purple-400 mt-1">registrados</p>
+                <p className="text-xs text-purple-400 mt-1">en el sistema</p>
               </div>
             </div>
           </div>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-sm text-gray-400">
                   <span className="bg-purple-500 text-white px-3 py-1 rounded-full">
-                    {stats.totalClientes} usuarios
+                    {stats.totalUsuarios} usuarios
                   </span>
                 </div>
               </div>
