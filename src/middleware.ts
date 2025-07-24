@@ -5,7 +5,8 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const isAuth = !!token;
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login');
+    const isAuthPage = req.nextUrl.pathname === '/login';
+    const isDashboardPage = req.nextUrl.pathname.startsWith('/dashboard');
 
     // Si está en página de login y ya está autenticado, redirigir al dashboard
     if (isAuthPage && isAuth) {
@@ -13,12 +14,12 @@ export default withAuth(
     }
 
     // Si no está autenticado y trata de acceder al dashboard, redirigir al login
-    if (!isAuth && req.nextUrl.pathname.startsWith('/dashboard')) {
+    if (isDashboardPage && !isAuth) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
 
-    // Verificar que el usuario sea staff para acceder al dashboard
-    if (req.nextUrl.pathname.startsWith('/dashboard') && token?.role !== 'staff' && token?.role !== 'admin') {
+    // Verificar que el usuario sea staff/admin para acceder al dashboard
+    if (isDashboardPage && isAuth && token?.role !== 'staff' && token?.role !== 'admin') {
       return NextResponse.redirect(new URL('/', req.url));
     }
 
@@ -26,7 +27,19 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => true // Permitir todas las rutas, la lógica está arriba
+      authorized: ({ token, req }) => {
+        // Permitir acceso a login siempre
+        if (req.nextUrl.pathname === '/login') {
+          return true;
+        }
+        
+        // Para dashboard, verificar autenticación y rol
+        if (req.nextUrl.pathname.startsWith('/dashboard')) {
+          return !!token && (token.role === 'staff' || token.role === 'admin');
+        }
+        
+        return true;
+      }
     },
   }
 );
