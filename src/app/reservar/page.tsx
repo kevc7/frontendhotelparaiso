@@ -530,32 +530,32 @@ export default function ReservarPage() {
                             e.currentTarget.src = 'https://res.cloudinary.com/dqwztjdcz/image/upload/v1753089234/descarga_18_fvcaxx.jpg';
                           }}
                         />
-                        <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium border border-white/20">
+                        <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium border border-white/20">
                           {hab.numero}
                         </div>
-                        <div className="absolute bottom-4 left-4 bg-green-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
-                          <StarIcon className="w-4 h-4 inline mr-1" />
+                        <div className="absolute bottom-4 left-4 bg-green-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">
+                          <StarIcon className="w-3 h-3 inline mr-1" />
                           {hab.capacidad_maxima} personas
                         </div>
                       </div>
                       {/* Contenido de la card */}
-                      <div className="flex flex-col flex-1 p-7 gap-3 justify-between">
+                      <div className="flex flex-col flex-1 p-5 gap-2 justify-between">
                         <div>
-                          <h4 className="font-bold text-2xl mb-2 text-white group-hover:text-green-400 transition-colors duration-300 truncate">
+                          <h4 className="font-bold text-lg mb-1 text-white group-hover:text-green-400 transition-colors duration-300 truncate">
                             {hab.tipo_nombre}
                           </h4>
-                          <div className="text-base text-gray-300 mb-2 line-clamp-2 min-h-[2.5rem]">
+                          <div className="text-sm text-gray-300 mb-1 line-clamp-2 min-h-[2rem]">
                             {hab.servicios && typeof hab.servicios === 'string' 
                               ? hab.servicios.split(',').slice(0, 3).join(', ')
                               : 'Servicios básicos'}
                           </div>
                         </div>
                         <div className="flex items-end justify-between mt-auto pt-2">
-                          <div className="text-2xl font-bold text-green-400 whitespace-nowrap">
+                          <div className="text-lg font-bold text-green-400 whitespace-nowrap">
                             ${hab.precio_base}/noche
                           </div>
                           <button
-                            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-3 px-7 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-semibold text-lg"
+                            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-2 px-5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-semibold text-base"
                             onClick={() => handleAbrirModal(hab)}
                           >
                             Reservar
