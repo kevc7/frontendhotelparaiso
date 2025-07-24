@@ -95,12 +95,12 @@ export default function HabitacionesPage() {
           <h1 className={`text-4xl md:text-7xl font-bold text-white mb-4 text-center transition-all duration-1000 ${
             animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            Nuestras Habitaciones
+            
           </h1>
           <p className={`text-xl md:text-2xl text-green-300 text-center transition-all duration-1000 delay-300 ${
             animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            Descubre el confort y la elegancia en cada una de nuestras habitaciones
+            
           </p>
         </div>
       </div>
