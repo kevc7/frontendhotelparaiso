@@ -15,6 +15,7 @@ const authOptions = {
         }
 
         try {
+          // Usar el backend para autenticación
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`, {
             method: 'POST',
             headers: {
