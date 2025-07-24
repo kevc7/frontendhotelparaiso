@@ -16,6 +16,7 @@ import {
 export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [animateCards, setAnimateCards] = useState(false);
   
   // Imágenes del carousel
   const carouselImages = [
@@ -39,6 +40,8 @@ export default function Home() {
   // Animación de carga
   useEffect(() => {
     setIsLoaded(true);
+    // Animar tarjetas después de la carga
+    setTimeout(() => setAnimateCards(true), 1000);
   }, []);
 
   return (
@@ -99,28 +102,6 @@ export default function Home() {
             </Link>
           </div>
         </div>
-
-        {/* Indicadores del Carousel */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
-          {carouselImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentImageIndex 
-                  ? 'bg-white scale-125' 
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse"></div>
-          </div>
-        </div>
       </section>
 
       {/* Sección de Servicios */}
@@ -135,10 +116,12 @@ export default function Home() {
               creando experiencias extraordinarias que perduran en el tiempo.
             </p>
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Habitaciones Elegantes */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+            <div className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105 ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '0ms' }}>
               <div className="relative h-64 overflow-hidden">
                 <img
                   src="/habelegante.webp"
@@ -151,17 +134,24 @@ export default function Home() {
               </div>
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
-                  Habitaciones Elegantes
+                  <span className="inline-block group-hover:animate-pulse">Habitaciones</span>{' '}
+                  <span className="inline-block group-hover:animate-bounce">Elegantes</span>
                 </h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Disfruta de espacios diseñados con elegancia y confort, 
-                  donde cada detalle está pensado para tu bienestar.
+                <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                    Disfruta de espacios diseñados con elegancia y confort,
+                  </span>{' '}
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    donde cada detalle está pensado para tu bienestar.
+                  </span>
                 </p>
               </div>
-            </div>
-
+                      </div>
+                      
             {/* Gastronomía de Autor */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+            <div className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105 ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '200ms' }}>
               <div className="relative h-64 overflow-hidden">
                 <img
                   src="/gastronomiadeautor.jpeg"
@@ -174,17 +164,24 @@ export default function Home() {
               </div>
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
-                  Gastronomía de Autor
-                </h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Saborea platos únicos creados por nuestros chefs expertos, 
-                  fusionando sabores locales con técnicas internacionales.
-                </p>
+                  <span className="inline-block group-hover:animate-pulse">Gastronomía</span>{' '}
+                  <span className="inline-block group-hover:animate-bounce">de Autor</span>
+                      </h3>
+                <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                    Saborea platos únicos creados por nuestros chefs expertos,
+                  </span>{' '}
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    fusionando sabores locales con técnicas internacionales.
+                          </span>
+                      </p>
               </div>
-            </div>
-
+                    </div>
+                    
             {/* Naturaleza Pura */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105">
+            <div className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105 ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '400ms' }}>
               <div className="relative h-64 overflow-hidden">
                 <img
                   src="/naturalezapura.jpeg"
@@ -197,11 +194,16 @@ export default function Home() {
               </div>
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
-                  Naturaleza Pura
+                  <span className="inline-block group-hover:animate-pulse">Naturaleza</span>{' '}
+                  <span className="inline-block group-hover:animate-bounce">Pura</span>
                 </h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Conecta con la belleza natural que nos rodea, 
-                  en un entorno donde la paz y la tranquilidad reinan.
+                <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                    Conecta con la belleza natural que nos rodea,
+                  </span>{' '}
+                  <span className="inline-block group-hover:animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    en un entorno donde la paz y la tranquilidad reinan.
+                  </span>
                 </p>
               </div>
             </div>
@@ -220,45 +222,53 @@ export default function Home() {
               Descubre lo que nos hace únicos
             </p>
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center group">
+            <div className={`text-center group ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '600ms' }}>
               <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <WifiIcon className="w-10 h-10 text-white" />
-              </div>
+                    </div>
               <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
                 WiFi Gratuito
               </h3>
               <p className="text-gray-300">
                 Conectividad de alta velocidad en todas las áreas
               </p>
-            </div>
+                  </div>
 
-            <div className="text-center group">
+            <div className={`text-center group ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '800ms' }}>
               <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <SunIcon className="w-10 h-10 text-white" />
-              </div>
+                </div>
               <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
                 Clima Perfecto
               </h3>
               <p className="text-gray-300">
                 Temperatura ideal durante todo el año
               </p>
-            </div>
+          </div>
 
-            <div className="text-center group">
+            <div className={`text-center group ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '1000ms' }}>
               <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <TruckIcon className="w-10 h-10 text-white" />
-              </div>
+        </div>
               <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
                 Estacionamiento
               </h3>
               <p className="text-gray-300">
                 Estacionamiento seguro y gratuito
               </p>
-            </div>
-
-            <div className="text-center group">
+        </div>
+        
+            <div className={`text-center group ${
+              animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} style={{ animationDelay: '1200ms' }}>
               <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <WrenchScrewdriverIcon className="w-10 h-10 text-white" />
               </div>

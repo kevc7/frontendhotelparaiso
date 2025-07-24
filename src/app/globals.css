@@ -2,220 +2,198 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
+/* Animaciones personalizadas */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-    line-height: 1.6;
-    color: #374151;
-    background-color: #ffffff;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
-}
-
-  .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-md p-6;
-  }
-  
-  .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer utilities {
-  /* Transiciones personalizadas para el carousel */
-  .duration-2000 {
-    transition-duration: 2000ms;
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
   }
-  
-  /* Animaciones personalizadas */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-  
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
   }
-  
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-  
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
   }
-  
-  @keyframes slideInFromLeft {
-    0% {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0);
-    }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  @keyframes typewriter {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
   }
-  
-  @keyframes sparkle {
-    0%, 100% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1);
-    }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
   }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out;
+  70% {
+    transform: scale(0.9);
   }
-  
-  .animate-fade-in-scale {
-    animation: fadeInScale 0.6s ease-out;
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
   }
-  
-  .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
   }
-  
-  .animate-slide-in-left {
-    animation: slideInFromLeft 0.6s ease-out;
+}
+
+/* Clases de utilidad para animaciones */
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-slide-in-from-top {
+  animation: slide-in-from-top 0.6s ease-out forwards;
+}
+
+.animate-slide-in-from-left {
+  animation: slide-in-from-left 0.6s ease-out forwards;
+}
+
+.animate-slide-in-from-right {
+  animation: slide-in-from-right 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.8s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Animaciones para texto */
+.text-animate-char {
+  display: inline-block;
+  opacity: 0;
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.text-animate-char:nth-child(1) { animation-delay: 0.1s; }
+.text-animate-char:nth-child(2) { animation-delay: 0.2s; }
+.text-animate-char:nth-child(3) { animation-delay: 0.3s; }
+.text-animate-char:nth-child(4) { animation-delay: 0.4s; }
+.text-animate-char:nth-child(5) { animation-delay: 0.5s; }
+.text-animate-char:nth-child(6) { animation-delay: 0.6s; }
+.text-animate-char:nth-child(7) { animation-delay: 0.7s; }
+.text-animate-char:nth-child(8) { animation-delay: 0.8s; }
+.text-animate-char:nth-child(9) { animation-delay: 0.9s; }
+.text-animate-char:nth-child(10) { animation-delay: 1.0s; }
+
+/* Efectos de hover mejorados */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+/* Gradientes animados */
+.gradient-animate {
+  background: linear-gradient(-45deg, #22c55e, #16a34a, #15803d, #166534);
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  .animate-typewriter {
-    overflow: hidden;
-    white-space: nowrap;
-    animation: typewriter 2s steps(30) 1s forwards;
+  50% {
+    background-position: 100% 50%;
   }
-  
-  .animate-sparkle {
-    animation: sparkle 1.5s ease-in-out infinite;
+  100% {
+    background-position: 0% 50%;
   }
-  
-  /* Efectos específicos para letras */
-  .letter-hover:hover {
-    color: #fbbf24;
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
-    transform: translateY(-2px) scale(1.1);
-    transition: all 0.3s ease;
-  }
-  
-  .word-wave {
-    display: inline-block;
-    animation: float 2s ease-in-out infinite;
-  }
-  
-  .word-wave:nth-child(2n) {
-    animation-delay: 0.2s;
-  }
-  
-  .word-wave:nth-child(3n) {
-    animation-delay: 0.4s;
-  }
-  
-  /* Efectos de texto gradiente */
-  .text-gradient {
-    background: linear-gradient(90deg, #10b981, #059669, #047857);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s ease infinite;
-  }
-  
-  /* Glassmorphism effect */
-  .glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  /* Efectos de hover mejorados */
-  .hover-lift {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .hover-lift:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Efectos de parallax */
-  .parallax {
-    transform-style: preserve-3d;
-  }
-  
-  /* Indicadores de scroll personalizados */
-  .scroll-indicator {
-    position: relative;
-  }
-  
-  .scroll-indicator::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    width: 2px;
-    height: 20px;
-    background: white;
-    transform: translateX(-50%);
-    animation: float 2s ease-in-out infinite;
-  }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}
+
+/* Selección de texto personalizada */
+::selection {
+  background: #22c55e;
+  color: white;
+}
+
+::-moz-selection {
+  background: #22c55e;
+  color: white;
 }

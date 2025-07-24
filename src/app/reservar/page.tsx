@@ -129,14 +129,17 @@ export default function ReservarPage() {
     const cargarHabitacionesIniciales = async () => {
       try {
         setInitialLoading(true);
+        console.log('Cargando habitaciones iniciales...');
         const response = await fetch(`${API_BASE_URL}/api/habitaciones`);
         if (!response.ok) {
           throw new Error('Error al cargar habitaciones');
         }
         const data = await response.json();
+        console.log('Datos de habitaciones iniciales:', data);
+        console.log('Primera habitación como ejemplo:', data.data?.[0]);
         setHabitacionesDisponibles(data.data || []);
       } catch (err: any) {
-        console.error('Error:', err);
+        console.error('Error al cargar habitaciones iniciales:', err);
       } finally {
         setInitialLoading(false);
         // Animar contenido después de la carga
@@ -169,6 +172,7 @@ export default function ReservarPage() {
         ...(searchData.roomType && { roomType: searchData.roomType })
       });
 
+      console.log('Buscando habitaciones con parámetros:', params.toString());
       const response = await fetch(`${API_BASE_URL}/api/disponibilidad?${params}`);
       
       if (!response.ok) {
@@ -176,8 +180,11 @@ export default function ReservarPage() {
       }
 
       const data = await response.json();
+      console.log('Datos de disponibilidad recibidos:', data);
+      console.log('Primera habitación disponible como ejemplo:', data.data?.[0]);
       setHabitacionesDisponibles(data.data || []);
     } catch (err: any) {
+      console.error('Error en búsqueda de habitaciones:', err);
       setError(err.message || 'Error al buscar habitaciones');
     } finally {
       setLoading(false);
@@ -193,13 +200,31 @@ export default function ReservarPage() {
   };
 
   const calcularReserva = () => {
-    if (!habitacionParaReservar || !modalCheckIn || !modalCheckOut) return 0;
+    if (!habitacionParaReservar || !modalCheckIn || !modalCheckOut) {
+      console.log('Datos faltantes para calcular reserva:', {
+        habitacionParaReservar,
+        modalCheckIn,
+        modalCheckOut
+      });
+      return 0;
+    }
     
     const checkIn = new Date(modalCheckIn);
     const checkOut = new Date(modalCheckOut);
     const dias = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
     
-    return dias * habitacionParaReservar.precio_noche;
+    // Verificar la estructura de datos de la habitación
+    console.log('Datos de habitación para calcular precio:', habitacionParaReservar);
+    
+    // Intentar diferentes propiedades para el precio
+    const precio = habitacionParaReservar.precio_noche || 
+                   habitacionParaReservar.precio || 
+                   habitacionParaReservar.precio_base || 
+                   0;
+    
+    console.log('Precio calculado:', precio, 'Días:', dias, 'Total:', dias * precio);
+    
+    return dias * precio;
   };
 
   const recargarHabitaciones = async () => {
@@ -210,8 +235,10 @@ export default function ReservarPage() {
         throw new Error('Error al recargar habitaciones');
       }
       const data = await response.json();
+      console.log('Datos de habitaciones recibidos:', data);
       setHabitacionesDisponibles(data.data || []);
     } catch (err: any) {
+      console.error('Error al recargar habitaciones:', err);
       setError(err.message || 'Error al recargar habitaciones');
     } finally {
       setLoading(false);
@@ -483,7 +510,7 @@ export default function ReservarPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold text-green-400">
-                        ${habitacion.precio_noche}/noche
+                        ${habitacion.precio_noche || habitacion.precio || habitacion.precio_base || 0}/noche
                       </div>
                       <button
                         onClick={() => handleAbrirModal(habitacion)}
@@ -543,7 +570,7 @@ export default function ReservarPage() {
                       Habitación {habitacionParaReservar.numero}
                     </p>
                     <p className="text-green-400 font-semibold">
-                      ${habitacionParaReservar.precio_noche}/noche
+                      ${habitacionParaReservar.precio_noche || habitacionParaReservar.precio || habitacionParaReservar.precio_base || 0}/noche
                     </p>
                   </div>
 
