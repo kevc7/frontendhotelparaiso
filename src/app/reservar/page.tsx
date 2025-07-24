@@ -509,11 +509,11 @@ export default function ReservarPage() {
                   <HomeIcon className="w-6 h-6 mr-3 text-green-400" />
                   Habitaciones Disponibles ({habitacionesDisponibles.length})
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-10">
                   {habitacionesDisponibles.map((hab, index) => (
                     <div 
                       key={hab.id} 
-                      className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden hover:shadow-green-500/25 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-105"
+                      className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden hover:shadow-green-500/25 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-[1.03] flex flex-col min-h-[420px] max-w-[420px] mx-auto"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {/* Imagen de la habitación */}
@@ -523,7 +523,6 @@ export default function ReservarPage() {
                           alt={`Habitación ${hab.tipo_nombre}`}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           onError={(e) => {
-                            // Fallback en caso de error al cargar la imagen
                             e.currentTarget.src = 'https://res.cloudinary.com/dqwztjdcz/image/upload/v1753089234/descarga_18_fvcaxx.jpg';
                           }}
                         />
@@ -535,27 +534,24 @@ export default function ReservarPage() {
                           {hab.capacidad_maxima} personas
                         </div>
                       </div>
-                      
                       {/* Contenido de la card */}
-                      <div className="p-6">
-                        <div className="mb-4">
-                          <h4 className="font-bold text-xl mb-3 text-white group-hover:text-green-400 transition-colors duration-300">
+                      <div className="flex flex-col flex-1 p-7 gap-3 justify-between">
+                        <div>
+                          <h4 className="font-bold text-2xl mb-2 text-white group-hover:text-green-400 transition-colors duration-300 truncate">
                             {hab.tipo_nombre}
                           </h4>
-                          <div className="text-sm text-gray-300 mb-4 line-clamp-2">
+                          <div className="text-base text-gray-300 mb-2 line-clamp-2 min-h-[2.5rem]">
                             {hab.servicios && typeof hab.servicios === 'string' 
                               ? hab.servicios.split(',').slice(0, 3).join(', ')
-                              : 'Servicios básicos'
-                            }
+                              : 'Servicios básicos'}
                           </div>
                         </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="text-2xl font-bold text-green-400">
+                        <div className="flex items-end justify-between mt-auto pt-2">
+                          <div className="text-2xl font-bold text-green-400 whitespace-nowrap">
                             ${hab.precio_base}/noche
                           </div>
                           <button
-                            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-medium"
+                            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-3 px-7 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-semibold text-lg"
                             onClick={() => handleAbrirModal(hab)}
                           >
                             Reservar
