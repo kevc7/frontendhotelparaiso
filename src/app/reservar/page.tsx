@@ -513,7 +513,7 @@ export default function ReservarPage() {
                   <HomeIcon className="w-6 h-6 mr-3 text-green-400" />
                   Habitaciones Disponibles ({habitacionesDisponibles.length})
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 md:gap-12 lg:gap-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10 lg:gap-12">
                   {habitacionesDisponibles.map((hab, index) => (
                     <div 
                       key={hab.id} 
