@@ -513,11 +513,11 @@ export default function ReservarPage() {
                   <HomeIcon className="w-6 h-6 mr-3 text-green-400" />
                   Habitaciones Disponibles ({habitacionesDisponibles.length})
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10 lg:gap-12">
                   {habitacionesDisponibles.map((hab, index) => (
                     <div 
                       key={hab.id} 
-                      className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden hover:shadow-green-500/25 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-[1.03] flex flex-col min-h-[420px] w-full"
+                      className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden hover:shadow-green-500/25 border border-gray-700 hover:border-green-500 transition-all duration-500 transform hover:scale-[1.03] flex flex-col min-h-[420px] w-full max-w-sm mx-auto"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {/* Imagen de la habitación */}
